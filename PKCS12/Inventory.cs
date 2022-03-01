@@ -26,14 +26,14 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
     {
         public string ExtensionName => "";
 
-        public JobResult processJob(InventoryJobConfiguration config, SubmitInventoryUpdate submitInventory)
+        public JobResult ProcessJob(InventoryJobConfiguration config, SubmitInventoryUpdate submitInventory)
         {
             ILogger logger = LogHandler.GetClassLogger<Inventory>();
             logger.LogDebug($"Begin PKCS12 Inventory job for job id {config.JobId}...");
 
             PKCS12Store pkcs12Store = new PKCS12Store(config.CertificateStoreDetails.ClientMachine, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, config.CertificateStoreDetails.StorePassword);
 
-            List<AgentCertStoreInventoryItem> inventoryItems = new List<AgentCertStoreInventoryItem>();
+            List<CurrentInventoryItem> inventoryItems = new List<CurrentInventoryItem>();
             try
             {
                 ApplicationSettings.Initialize(this.GetType().Assembly.Location);
@@ -55,9 +55,9 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
                         certChain.Add(Convert.ToBase64String(certificate.Export(X509ContentType.Cert)));
                     }
 
-                    inventoryItems.Add(new AgentCertStoreInventoryItem()
+                    inventoryItems.Add(new CurrentInventoryItem()
                     {
-                        ItemStatus = AgentInventoryItemStatus.Unknown,
+                        ItemStatus = OrchestratorInventoryItemStatus.Unknown,
                         Alias = string.IsNullOrEmpty(issuedCertificate.FriendlyName) ? issuedCertificate.Thumbprint : issuedCertificate.FriendlyName,
                         PrivateKeyEntry = issuedCertificate.HasPrivateKey,
                         UseChainLevel = collection.Count > 1,
@@ -67,7 +67,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             }
             catch (Exception ex)
             {
-                return new AnyJobCompleteInfo() { Status = 4, Message = ExceptionHandler.FlattenExceptionMessages(ex, $"Site {config.Store.StorePath} on server {config.Store.ClientMachine}:") };
+                return new JobResult() { Result = OrchestratorJobStatusJobResult.Failure, JobHistoryId = config.JobHistoryId, FailureMessage = ExceptionHandler.FlattenExceptionMessages(ex, $"Site {config.CertificateStoreDetails.StorePath} on server {config.CertificateStoreDetails.ClientMachine}:") };
             }
             finally
             {
@@ -77,11 +77,11 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             try
             {
                 submitInventory.Invoke(inventoryItems);
-                return new AnyJobCompleteInfo() { Status = 2, Message = "Successful" };
+                return new JobResult() { Result = OrchestratorJobStatusJobResult.Success, JobHistoryId = config.JobHistoryId };
             }
             catch (Exception ex)
             {
-                return new AnyJobCompleteInfo() { Status = 4, Message = ExceptionHandler.FlattenExceptionMessages(ex, $"Site {config.Store.StorePath} on server {config.Store.ClientMachine}:") };
+                return new JobResult() { Result = OrchestratorJobStatusJobResult.Failure, JobHistoryId = config.JobHistoryId, FailureMessage = ExceptionHandler.FlattenExceptionMessages(ex, $"Site {config.CertificateStoreDetails.StorePath} on server {config.CertificateStoreDetails.ClientMachine}:") };
             }
         }
     }

@@ -11,6 +11,8 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 {
     class WinRMHandler : BaseRemoteHandler
@@ -36,7 +38,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 
             catch (Exception ex)
             {
-                Logger.Debug($"Exception during Initialize...{ExceptionHandler.FlattenExceptionMessages(ex, ex.Message)}");
+                _logger.LogDebug($"Exception during Initialize...{ExceptionHandler.FlattenExceptionMessages(ex, ex.Message)}");
                 throw ex;
             }
         }
@@ -49,7 +51,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 
         public override string RunCommand(string commandText, object[] parameters, bool withSudo, string[] passwordsToMaskInLog)
         {
-            Logger.Debug($"RunCommand: {Server}");
+            _logger.LogDebug($"RunCommand: {Server}");
 
             try
             {
@@ -77,7 +79,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
                             ps.AddArgument(parameter);
                     }
 
-                    Logger.Debug($"RunCommand: {displayCommand}");
+                    _logger.LogDebug($"RunCommand: {displayCommand}");
                     string result = FormatResult(ps.Invoke(parameters));
 
                     if (ps.HadErrors)
@@ -102,7 +104,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
                             throw new ApplicationException(errors);
                     }
                     else
-                        Logger.Debug($"WinRM Results: {displayCommand}::: {result}");
+                        _logger.LogDebug($"WinRM Results: {displayCommand}::: {result}");
 
                     if (result.ToLower().Contains(KEYTOOL_ERROR))
                         throw new ApplicationException(result);
@@ -112,14 +114,14 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
             }
             catch (Exception ex)
             {
-                Logger.Debug($"Exception during RunCommand...{ExceptionHandler.FlattenExceptionMessages(ex, ex.Message)}");
+                _logger.LogDebug($"Exception during RunCommand...{ExceptionHandler.FlattenExceptionMessages(ex, ex.Message)}");
                 throw ex;
             }
         }
 
         private byte[] RunCommandBinary(string commandText)
         {
-            Logger.Debug($"RunCommandBinary: {Server}");
+            _logger.LogDebug($"RunCommandBinary: {Server}");
             byte[] rtnBytes = new byte[0];
 
             try
@@ -132,7 +134,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
                         ps.Runspace = runspace;
                         ps.AddScript(commandText);
 
-                        Logger.Debug($"RunCommandBinary: {commandText}");
+                        _logger.LogDebug($"RunCommandBinary: {commandText}");
                         System.Collections.ObjectModel.Collection<PSObject> psResult = ps.Invoke();
 
                         if (ps.HadErrors)
@@ -148,7 +150,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
                         {
                             if (psResult.Count > 0)
                                 rtnBytes = (byte[])psResult[0].BaseObject;
-                            Logger.Debug($"WinRM Results: {commandText}::: binary results.");
+                            _logger.LogDebug($"WinRM Results: {commandText}::: binary results.");
                         }
                     }
                 }
@@ -158,14 +160,14 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 
             catch (Exception ex)
             {
-                Logger.Debug("Exception during RunCommandBinary...{ExceptionHandler.FlattenExceptionMessages(ex, ex.Message)}");
+                _logger.LogDebug("Exception during RunCommandBinary...{ExceptionHandler.FlattenExceptionMessages(ex, ex.Message)}");
                 throw ex;
             }
         }
 
         public override void UploadCertificateFile(string path, string fileName, byte[] certBytes)
         {
-            Logger.Debug($"UploadCertificateFile: {path} {fileName}");
+            _logger.LogDebug($"UploadCertificateFile: {path} {fileName}");
 
             string scriptBlock = $@"
                                     param($contents)
@@ -180,7 +182,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 
         public override byte[] DownloadCertificateFile(string path)
         {
-            Logger.Debug($"DownloadCertificateFile: {path}");
+            _logger.LogDebug($"DownloadCertificateFile: {path}");
             return RunCommandBinary($@"Get-Content -Path ""{path}"" -Encoding Byte -Raw");
         }
 
@@ -191,7 +193,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 
         public override bool DoesFileExist(string path)
         {
-            Logger.Debug($"DoesFileExist: {path}");
+            _logger.LogDebug($"DoesFileExist: {path}");
 
             return Convert.ToBoolean(RunCommand($@"Test-Path -path ""{path}""", null, false, null));
         }

@@ -5,23 +5,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 // and limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Keyfactor.Logging;
 
-using CSS.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
 {
-    abstract class BaseRemoteHandler : LoggingClientBase, IRemoteHandler
+    abstract class BaseRemoteHandler : IRemoteHandler
     {
+        internal ILogger _logger;
         internal const string KEYTOOL_ERROR = "password was incorrect";
         internal const string PASSWORD_MASK_VALUE = "[PASSWORD]";
         internal const int PASSWORD_LENGTH_MAX = 100;
 
         public string Server { get; set; }
+
+        public BaseRemoteHandler()
+        {
+            _logger = LogHandler.GetClassLogger(this.GetType());
+        }
 
         public abstract void Initialize();
 

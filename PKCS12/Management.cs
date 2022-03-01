@@ -9,96 +9,86 @@ using System;
 using System.IO;
 using System.Linq;
 
-using Keyfactor.Platform.Extensions.Agents;
-using Keyfactor.Platform.Extensions.Agents.Enums;
-using Keyfactor.Platform.Extensions.Agents.Delegates;
-using Keyfactor.Platform.Extensions.Agents.Interfaces;
+using Keyfactor.Logging;
+using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Common.Enums;
 
-using CSS.Common.Logging;
-
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 using Org.BouncyCastle.Pkcs;
 
 namespace Keyfactor.Extensions.Orchestrator.PKCS12
 {
-    public class Management : LoggingClientBase, IAgentJobExtension
+    public class Management : IManagementJobExtension
     {
-        public string GetJobClass()
-        {
-            return "Management";
-        }
+        public string ExtensionName => "";
 
-        public string GetStoreType()
+        public JobResult ProcessJob(ManagementJobConfiguration config)
         {
-            return "PKCS12";
-        }
+            ILogger logger = LogHandler.GetClassLogger<Inventory>();
+            logger.LogDebug($"Begin PKCS12 Management-{Enum.GetName(typeof(CertStoreOperationType), config.OperationType)} job for job id {config.JobId}...");
 
-        public AnyJobCompleteInfo processJob(AnyJobConfigInfo config, SubmitInventoryUpdate submitInventory, SubmitEnrollmentRequest submitEnrollmentRequest, SubmitDiscoveryResults sdr)
-        {
-            Logger.Debug($"Begin PKCS12 Management-{Enum.GetName(typeof(AnyJobOperationType), config.Job.OperationType)} job for job id {config.Job.JobId}...");
-
-            PKCS12Store PKCS12Store = new PKCS12Store(config.Store.ClientMachine, config.Server.Username, config.Server.Password, config.Store.StorePath, config.Store.StorePassword);
+            PKCS12Store PKCS12Store = new PKCS12Store(config.CertificateStoreDetails.ClientMachine, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, config.CertificateStoreDetails.StorePassword);
 
             try
             {
                 ApplicationSettings.Initialize(this.GetType().Assembly.Location);
 
-                bool hasPassword = !string.IsNullOrEmpty(config.Job.PfxPassword);
+                bool hasPassword = !string.IsNullOrEmpty(config.JobCertificate.PrivateKeyPassword);
                 PKCS12Store.Initialize();
 
-                switch (config.Job.OperationType)
+                switch (config.OperationType)
                 {
-                    case AnyJobOperationType.Add:
-                        Logger.Debug($"Begin Create Operation for {config.Store.StorePath} on {config.Store.ClientMachine}.");
+                    case CertStoreOperationType.Add:
+                        logger.LogDebug($"Begin Create Operation for {config.CertificateStoreDetails.StorePath} on {config.CertificateStoreDetails.ClientMachine}.");
                         if (!PKCS12Store.DoesStoreExist())
                         {
                             throw new PKCS12Exception($"Certificate store {PKCS12Store.StorePath + PKCS12Store.StoreFileName} does not exist on server {PKCS12Store.Server}.");
                         }
                         else
                         {
-                            PKCS12Store.AddCertificate(config.Job.Alias, config.Job.EntryContents, config.Job.Overwrite, config.Job.PfxPassword);
+                            PKCS12Store.AddCertificate(config.JobCertificate.Alias, config.JobCertificate.Contents, config.Overwrite, config.JobCertificate.PrivateKeyPassword);
                         }
                         break;
 
-                    case AnyJobOperationType.Remove:
-                        Logger.Debug($"Begin Delete Operation for {config.Store.StorePath} on {config.Store.ClientMachine}.");
+                    case CertStoreOperationType.Remove:
+                        logger.LogDebug($"Begin Delete Operation for {config.CertificateStoreDetails.StorePath} on {config.CertificateStoreDetails.ClientMachine}.");
                         if (!PKCS12Store.DoesStoreExist())
                         {
                             throw new PKCS12Exception($"Certificate store {PKCS12Store.StorePath + PKCS12Store.StoreFileName} does not exist on server {PKCS12Store.Server}.");
                         }
                         else
                         {
-                            PKCS12Store.DeleteCertificateByAlias(config.Job.Alias);
+                            PKCS12Store.DeleteCertificateByAlias(config.JobCertificate.Alias);
                         }
                         break;
 
-                    case AnyJobOperationType.Create:
-                        Logger.Debug($"Begin Create Operation for {config.Store.StorePath} on {config.Store.ClientMachine}.");
+                    case CertStoreOperationType.Create:
+                        logger.LogDebug($"Begin Create Operation for {config.CertificateStoreDetails.StorePath} on {config.CertificateStoreDetails.ClientMachine}.");
                         if (PKCS12Store.DoesStoreExist())
                         {
                             throw new PKCS12Exception($"Certificate store {PKCS12Store.StorePath + PKCS12Store.StoreFileName} already exists.");
                         }
                         else
                         {
-                            PKCS12Store.CreateCertificateStore(config.Store.StorePath, config.Store.StorePassword);
+                            PKCS12Store.CreateCertificateStore(config.CertificateStoreDetails.StorePath, config.CertificateStoreDetails.StorePassword);
                         }
                         break;
 
                     default:
-                        return new AnyJobCompleteInfo() { Status = 4, Message = $"Site {config.Store.StorePath} on server {config.Store.ClientMachine}: Unsupported operation: {config.Job.OperationType.ToString()}" };
+                        return new JobResult() { Result = OrchestratorJobStatusJobResult.Failure, JobHistoryId = config.JobHistoryId, FailureMessage = $"Site {config.CertificateStoreDetails.StorePath} on server {config.CertificateStoreDetails.ClientMachine}: Unsupported operation: {config.OperationType.ToString()}" };
                 }
             }
             catch (Exception ex)
             {
-                return new AnyJobCompleteInfo() { Status = 4, Message = ExceptionHandler.FlattenExceptionMessages(ex, $"Site {config.Store.StorePath} on server {config.Store.ClientMachine}:") };
+                return new JobResult() { Result = OrchestratorJobStatusJobResult.Failure, JobHistoryId = config.JobHistoryId, FailureMessage = ExceptionHandler.FlattenExceptionMessages(ex, $"Site {config.CertificateStoreDetails.StorePath} on server {config.CertificateStoreDetails.ClientMachine}:") };
             }
             finally
             {
                 PKCS12Store.Terminate();
             }
 
-            return new AnyJobCompleteInfo() { Status = 2, Message = "Successful" };
+            return new JobResult() { Result = OrchestratorJobStatusJobResult.Success, JobHistoryId = config.JobHistoryId };
         }
     }
 }
