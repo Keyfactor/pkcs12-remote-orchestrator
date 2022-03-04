@@ -8,7 +8,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 
 using Org.BouncyCastle.Pkcs;
@@ -59,6 +61,14 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             UploadFilePath = ApplicationSettings.UseSeparateUploadFilePath && ServerType == ServerTypeEnum.Linux ? ApplicationSettings.SeparateUploadFilePath : StorePath;
         }
 
+        internal PKCS12Store(string server, string serverId, string serverPassword, ServerTypeEnum serverType)
+        {
+            Server = server;
+            ServerId = serverId;
+            ServerPassword = serverPassword ?? string.Empty;
+            ServerType = serverType;
+        }
+
         internal void Initialize()
         {
             if (ServerType == ServerTypeEnum.Linux)
@@ -73,6 +83,14 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
         {
             if (SSH != null)
                 SSH.Terminate();
+        }
+
+        internal List<string> FindStores(string[] paths, string[] extensions, string[] files)
+        {
+            if (DiscoveredStores != null)
+                return DiscoveredStores;
+
+            return ServerType == ServerTypeEnum.Linux ? FindStoresLinux(paths, extensions, files) : FindStoresWindows(paths, extensions, files);
         }
 
         internal List<X509Certificate2Collection> GetCertificateChains()
@@ -237,6 +255,73 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
         internal bool DoesStoreExist()
         {
             return SSH.DoesFileExist(StorePath + StoreFileName);
+        }
+
+        private List<string> FindStoresLinux(string[] paths, string[] extensions, string[] fileNames)
+        {
+            try
+            {
+                string concatPaths = string.Join(" ", paths);
+                string command = $"find {concatPaths} ";
+
+                foreach (string extension in extensions)
+                {
+                    foreach (string fileName in fileNames)
+                    {
+                        command += (command.IndexOf("-iname") == -1 ? string.Empty : "-or ");
+                        command += $"-iname '{fileName.Trim()}";
+                        if (extension.ToLower() == NO_EXTENSION)
+                            command += $"' ! -iname '*.*' ";
+                        else
+                            command += $".{extension.Trim()}' ";
+                    }
+                }
+
+                string result = string.Empty;
+                if (extensions.Any(p => p.ToLower() != NO_EXTENSION))
+                    result = SSH.RunCommand(command, null, ApplicationSettings.UseSudo, null);
+
+                return (result.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new PKCS12Exception($"Error attempting to find certificate stores for path={string.Join(" ", paths)}.", ex);
+            }
+        }
+
+        private List<string> FindStoresWindows(string[] paths, string[] extensions, string[] fileNames)
+        {
+            List<string> results = new List<string>();
+            StringBuilder concatFileNames = new StringBuilder();
+
+            if (paths[0] == FULL_SCAN)
+            {
+                paths = GetAvailablePaths();
+                for (int i = 0; i < paths.Length; i++)
+                    paths[i] += "/";
+            }
+
+            foreach (string path in paths)
+            {
+                foreach (string extension in extensions)
+                {
+                    foreach (string fileName in fileNames)
+                        concatFileNames.Append($",{fileName}.{extension}");
+                }
+
+                string command = $"(Get-ChildItem -Path {FormatPath(path)} -Recurse -ErrorAction SilentlyContinue -Include {concatFileNames.ToString().Substring(1)}).fullname";
+                string result = SSH.RunCommand(command, null, false, null);
+                results.AddRange(result.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList());
+            }
+
+            return results;
+        }
+
+        private string[] GetAvailablePaths()
+        {
+            string command = @"Get-WmiObject Win32_Logicaldisk -Filter ""DriveType = '3'"" | % {$_.DeviceId}";
+            string result = SSH.RunCommand(command, null, false, null);
+            return result.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private void SplitStorePathFile(string pathFileName)
