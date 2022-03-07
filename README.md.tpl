@@ -70,43 +70,15 @@ In Keyfactor Command create a new Certificate Store Type similar to the one belo
 
 No Custom Fields or Entry Parameters should be entered.
 
-**2. Register the PKCS12 AnyAgent with Keyfactor**
+**2. Create the proper extension folder and move the installation binaries to this location**
 
-Open the Keyfactor Windows Agent Configuration Wizard and perform the tasks as illustrated below:
+Download the desired PKCS12 orchestrator extension version at https://github.com/Keyfactor/pkcs12-remote-orchestrator. Within Windows File Explorer, navigate to the Keyfactor Orchestrator installation folder (usually C:\Program Files\Keyfactor\Keyfactor Orchestrator), find the "extensions" folder, and under that create a new folder named "PKCS12". Under the PKCS12 folder copy all of the files from the downloaded release to this location.
 
-![](Images/image2.png)
+**3a. (Optional) Create a PKCS12 Certificate Store within Keyfactor Command**
 
-- Click **\<Next\>**
+If you choose to manually create a PKCS12 store In Keyfactor Command rather than running a Discovery job to automatically find the store, you can navigate to Certificate Locations =\> Certificate Stores within Keyfactor Command to add a PKCS12 certificate store. Below are the values that should be entered.
 
-![](Images/image3.png)
-
-- If you have configured the agent service previously, you should be able to skip to just click **\<Next\>.** Otherwise, enter the service account Username and Password you wish to run the Keyfactor Windows Agent Service under, click **\<Update Windows Service Account\>** and click **\<Next\>.**
-
-![](Images/image4.png)
-
-- If you have configured the agent service previously, you should be able to skip to just re-enter the password to the service account the agent service will run under, click **\<Validate Keyfactor Connection\>** and then **\<Next\>.**
-
-![](Images/image5.png)
-
-- Select the agent you are adding capabilities for (in this case, PKCS12, and also select the specific capabilities (Inventory and Management in this example). Click **\<Next\>**.
-
-![](Images/image6.png)
-
-- For agent configuration purposes, this screen can be skipped by clicking **\<Next\>**.
-
-![](Images/image7.png)
-
-- For each AnyAgent implementation, check **Load assemblies containing extension modules from other location** , browse to the location of the compiled AnyAgent dll, and click **\<Validate Capabilities\>**. Once all AnyAgents have been validated, click **\<Apply Configuration\>**.
-
-![](Images/image8.png)
-
-- If the Keyfactor Agent Configuration Wizard configured everything correctly, you should see the dialog above.
-
-**3. Create a PKCS12 Certificate Store within Keyfactor Command**
-
-Navigate to Certificate Locations =\> Certificate Stores within Keyfactor Command to add a PKCS12 certificate store. Below are the values that should be entered.
-
-![](Images/Image9.png)
+![](Images/Image3.png)
 
 - **Category** – Required. The PKCS12 type name must be selected.
 - **Container** – Optional. Select a container if utilized.
@@ -123,8 +95,16 @@ When setting up a Windows server, the format of the machine name must be – [ht
 - **Store Path** – Required. The FULL PATH and file name of the pkcs12 certificate store being managed. File paths on Linux servers will always begin with a &quot;/&quot;. Windows servers will always begin with the drive letter, colon, and backslash, such as &quot;c:\&quot;.
 - **Orchestrator** – Select the orchestrator you wish to use to manage this store
 - **Store Password** – Set the store password or set no password after clicking the supplied button
+- **Create Certificate Store** - Check this box IF you wish to schedule a CREATE job that will physically create this store on the destination server.  If the actual physical store already exists, leave this unchecked.
 - **Inventory Schedule** – Set a schedule for running Inventory jobs or none, if you choose not to schedule Inventory at this time.
 
+**3b. (Optional) Schedule a PKCS12 Discovery Job
+
+Rather than manually creating PKCS12 certificate stores, you can schedule a Discovery job to search an orchestrated server and find them.
+
+First, in Keyfactor Command navigate to Certificate Locations => Certificate Stores. Select the Discover tab and then the Schedule button. Complete the dialog and click Done to schedule.
+
+![](Images/Image3.png)
 
 **4. Update Settings in config.json**
 
