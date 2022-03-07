@@ -19,12 +19,12 @@ The PKCS12 orchestrator extension supports the following types of certificate st
 2. Stores with one or more aliases (friendly names)
 3. Stores with certificate chains included in the entry
 
-This AnyAgent supports Java Keystores of type PKCS12 along with any other certificate stores creating using the PKCS#12 standard.  It does NOT at this time support Java Keystores of type JKS or any other types besides PKCS12.  It differs from the Java Keystore AnyAgent - [https://github.com/Keyfactor/jks-remote-windowsorchestrator] in that it uses the BouncyCastle .Net code library to manage the certificate store rather than remoting keytool commands.  Also, the Java Keystore AnyAgent DOES support Java keystores of type JKS where the PKCS12 one does not.
+This orchestrator extension supports Java Keystores of type PKCS12 along with any other certificate stores creating using the PKCS#12 standard.  It does NOT at this time support Java Keystores of type JKS or any other types besides PKCS12.  It differs from the Java Keystore orchestrator extension - [https://github.com/Keyfactor/jks-remote-orchestrator] in that it uses the BouncyCastle .Net code library to manage the certificate store rather than remoting keytool commands.  Please go to [https://github.com/keyfactor/jks-remote-orchestrator] for an orchestrator extension that can manage java keystores of type JKS.
 
 
 ## Versioning
 
-The version number of a the PKCS12 Windows AnyAgent can be verified by right clicking on the PKCS12.dll file in the Plugins installation folder, selecting Properties, and then clicking on the Details tab.
+The version number of a the PKCS12 orchestrator extension can be verified by right clicking on the PKCS12.dll file, selecting Properties, and then clicking on the Details tab.
 
 
 ## Keyfactor Version Supported
@@ -38,7 +38,7 @@ The PKCS12 orchestrator extension has been tested against Keyfactor Universal Or
 1. The PKCS12 orchestrator extension makes use of SFTP to upload and download certificate and certificate store files as well as the following common Linux shell commands:
     * find
 2. If the credentials you will be connecting with will need elevated access to run these commands, you must set the id up as a sudoer with no password necessary and set the config.json "UseSudo" value to "Y" (See Section 4 regarding the config.json file).
-3. As mentioned in #1, the PKCS12 AnyAgent makes use of SFTP to transfer files to and from the orchestrated server.  SFTP will not mske use of sudo, so all folders containing certificate stores will need to allow SFTP file transfer.  If this is not possible, set the values in the config.json apprpriately to use an alternative upload/download folder that does have SFTP file transfer (See Section 4 regarding the config.json file).
+3. As mentioned in #1, the PKCS12 orchestrator extension makes use of SFTP to transfer files to and from the orchestrated server.  SFTP will not mske use of sudo, so all folders containing certificate stores will need to allow SFTP file transfer.  If this is not possible, set the values in the config.json apprpriately to use an alternative upload/download folder that does have SFTP file transfer (See Section 4 regarding the config.json file).
 
 **For Windows orchestrated servers:**
 1. Make sure that WinRM is set up on the orchestrated server and that the WinRM port is part of the certificate store path when setting up your certificate stores (See Section 3a below). 
@@ -47,9 +47,9 @@ The PKCS12 orchestrator extension has been tested against Keyfactor Universal Or
     * Get-WmiObject
 
 
-## PKCS12 AnyAgent Configuration
+## PKCS12 Orchestrator Extension Configuration
 
-**1. Create the New Certificate Store Type for the New PKCS12 AnyAgent**
+**1. Create the New Certificate Store Type for the PKCS12 orchestrator extension**
 
 In Keyfactor Command create a new Certificate Store Type similar to the one below:
 
@@ -104,11 +104,30 @@ Rather than manually creating PKCS12 certificate stores, you can schedule a Disc
 
 First, in Keyfactor Command navigate to Certificate Locations => Certificate Stores. Select the Discover tab and then the Schedule button. Complete the dialog and click Done to schedule.
 
-![](Images/Image3.png)
+![](Images/Image4.png)
+
+- **Category** – Required. The PKCS12 type name must be selected.
+- **Orchestrator** – Select the orchestrator you wish to use to manage this store
+- **Client Machine & Credentials** – Required. The server name or IP Address and login credentials for the server where the Certificate Store is located.  The credentials for server login can be any of:
+
+  - UserId/Password
+
+  - UserId/SSH private key (entered in the password field)
+
+  - PAM provider information to pass the UserId/Password or UserId/SSH private key credentials
+
+  When setting up a Windows server, the format of the machine name must be – [http://_ServerName_:5985](http://ServerName:5985/), where "5985" is the WinRM port number. 5985 is the standard, but if your organization uses a different, use that.  The credentials used will be the Keyfactor Command service account.  Because of this, for Windows orchestrated servers, setting an additional set of credentials is not necessary.  **However, it is required that the *Change Credentials* link still be clicked on and the resulting dialog closed by clicking OK.**
+- **When** – Required. The date and time when you would like this to execute.
+- **Directories to search** – Required. A comma delimited list of the FULL PATHs and file names where you would like to recursively search for PKCS12 certificate stores. File paths on Linux servers will always begin with a "/". Windows servers will always begin with the drive letter, colon, and backslash, such as "c:\\".  Entering the string "fullscan" when Discovering against a Windows server will automatically do a recursive search on ALL local drives on the server.
+- **Directories to ignore** – Optional. A comma delimited list of the FULL PATHs that should be recursively ignored when searching for PKCS12 certificate stores. Linux file paths will always begin with a "/". Windows servers will always begin with the drive letter, colon, and backslash, such as "c:\\".
+- **Extensions** – Optional but suggested. A comma delimited list of the file extensions (no leading "." should be included) the job should search for. If not included, only files in the searched paths that have **no file extension** will be returned. If providing a list of extensions, using "noext" as one of the extensions will also return valid PKCS12 certificate stores with no file extension. For example, providing an Extensions list of "p12, noext" would return all locations within the paths being searched with a file extension of "p12" and files with no extensions.
+- **File name patterns to match** – Optional. A comma delimited list of full or partial file names (NOT including extension) to match on.  Use "\*" as a wildcard for begins with or ends with.  Example: entering "ab\*, \*cd\*, \*ef, ghij" will return all stores with names that _**begin with**_ "ab" AND stores with names that _**contain**_ "cd" AND stores with names _**ending in**_ "ef" AND stores with the _**exact name**_ of "ghij".
+- **Follow SymLinks** – NOT IMPLEMENTED. Leave unchecked.
+- **Include PKCS12 Files** – NOT APPLICABLE. Leave unchecked.
 
 **4. Update Settings in config.json**
 
-As a configuration step, you must modify the config.json file, found in the plugins folder of your Keyfactor Agent PKCS12 installation (usually C:\Program Files\Certified Security Solutions\Certificate Management System Agent\plugins\PKCS12). This file contains the following JSON:
+As a configuration step, you must modify the config.json file, found in the extensions folder of your Keyfactor orchestrator PKCS12 installation (usually C:\Program Files\Keyfactor\Keyfactor Orchestrator\extensions\PKCS12). This file contains the following JSON:
 
 {
     
@@ -122,6 +141,6 @@ Modify the three values as appropriate (all must be present regardless of Linux 
 
 **UseSudo** (Linux only) - to determine whether to prefix certain Linux command with "sudo". This can be very helpful in ensuring that the user id running commands ssh uses "least permissions necessary" to process each task. Setting this value to "Y" will prefix all Linux commands with "sudo" with the expectation that the command being executed on the orchestrated Linux server will look in the sudoers file to determine whether the logged in ID has elevated permissions for that specific command. For orchestrated Windows servers, this setting has no effect. Setting this value to "N" will result in "sudo" not being added to Linux commands.
 
-**UseSeparateUploadFilePath** (Linux only) – When adding a certificate to a PKCS12 certificate store, the AnyAgent must upload the certificate being deployed to the server where the certificate store resides. Setting this value to &quot;Y&quot; looks to the next setting, SeparateUploadFilePath, to determine where this file should be uploaded. Set this value to &quot;N&quot; to use the same path where the certificate store being managed resides. The certificate file uploaded to either location will be removed at the end of the process.
+**UseSeparateUploadFilePath** (Linux only) – When adding a certificate to a PKCS12 certificate store, the orchestrator extension must upload the certificate being deployed to the server where the certificate store resides. Setting this value to &quot;Y&quot; looks to the next setting, SeparateUploadFilePath, to determine where this file should be uploaded. Set this value to &quot;N&quot; to use the same path where the certificate store being managed resides. The certificate file uploaded to either location will be removed at the end of the process.
 
 **SeparateUploadFilePath** (Linux only) – Only used when UseSeparateUploadFilePath is set to &quot;Y&quot;. Set this to the path you wish to use as the location to upload and later remove certificates to be added to the PKCS12 certificate store being maintained.
