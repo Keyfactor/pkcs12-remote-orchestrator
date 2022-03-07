@@ -7,13 +7,14 @@
 
 ## Use Cases
 
-The PKCS12 Windows AnyAgent implements the following capabilities:
-1. Create - Create an empty PKCS12 certificate store.
-2. Inventory - Return all certificates for a define certificate store.
-3. Management (Add) - Add a certificate to a defined certificate store.
-4. Management (Remove) - Remove a certificate from a defined certificate store.
+The PKCS12 orchestrator extension implements the following capabilities:
+1. Discovery - Find PKCS12 certificate stores on a server.
+2. Create - Create an empty PKCS12 certificate store.
+3. Inventory - Return all certificates for a define certificate store.
+4. Management (Add) - Add a certificate to a defined certificate store.
+5. Management (Remove) - Remove a certificate from a defined certificate store.
 
-The PKCS12 Windows AnyAgent supports the following types of certificate stores:
+The PKCS12 orchestrator extension supports the following types of certificate stores:
 1. Trust stores (multiple public certificates with no private keys)
 2. Stores with one or more aliases (friendly names)
 3. Stores with certificate chains included in the entry
@@ -28,26 +29,22 @@ The version number of a the PKCS12 Windows AnyAgent can be verified by right cli
 
 ## Keyfactor Version Supported
 
-The PKCS12 Windows AnyAgent has been tested against Keyfactor Windows Orchestrator version 8.5 but should work against earlier or later versions of the Keyfactor Windows Orchestrator.  This AnyAgent is NOT compatible with the Keyfactor Universal Orchestrator.  A version compliant with that will be completed at a future date.
+The PKCS12 orchestrator extension has been tested against Keyfactor Universal Orchestrator version 9.5 on a Windows server but should work with later versions of the Keyfactor Universal Orchestrator on Windows or Linux.
 
 
 ## Security Considerations
 
 **For Linux orchestrated servers:**
-1. The PKCS12 AnyAgent makes use of SFTP to upload and download certificate and certificate store files as well as the following common Linux shell commands:
-    * cp
-    * rm
-    * touch
+1. The PKCS12 orchestrator extension makes use of SFTP to upload and download certificate and certificate store files as well as the following common Linux shell commands:
+    * find
 2. If the credentials you will be connecting with will need elevated access to run these commands, you must set the id up as a sudoer with no password necessary and set the config.json "UseSudo" value to "Y" (See Section 4 regarding the config.json file).
 3. As mentioned in #1, the PKCS12 AnyAgent makes use of SFTP to transfer files to and from the orchestrated server.  SFTP will not mske use of sudo, so all folders containing certificate stores will need to allow SFTP file transfer.  If this is not possible, set the values in the config.json apprpriately to use an alternative upload/download folder that does have SFTP file transfer (See Section 4 regarding the config.json file).
 
 **For Windows orchestrated servers:**
 1. Make sure that WinRM is set up on the orchestrated server and that the WinRM port is part of the certificate store path when setting up your certificate stores (See Section 3a below). 
-2. The PKCS12 AnyAgent makes use of the following Powershell cmdlets:
-    * Get-Content
-    * Set-Content
-    * Out-File
-    * Test-Path
+2. The PKCS12 orchestrator extension makes use of the following Powershell cmdlets:
+    * Get-ChildItem
+    * Get-WmiObject
 
 
 ## PKCS12 AnyAgent Configuration
@@ -57,17 +54,21 @@ The PKCS12 Windows AnyAgent has been tested against Keyfactor Windows Orchestrat
 In Keyfactor Command create a new Certificate Store Type similar to the one below:
 
 ![](Images/image1.png)
+![](Images/image2.png)
 
 - **Name** – Required. The display name of the new Certificate Store Type
 - **Short Name** – Required. **MUST** be &quot;PKCS12&quot;
+- **Custom Capability** - Unchecked
+- **Supported Job Types** – Inventory, Add, Remove, Create, and Discovery are the 5 job types implemented by this extension
 - **Needs Server, Blueprint Allowed, Requires Store Password, Supports Entry Password** – All checked/unchecked as shown
-- **Supports Custom Alias** – Required. Each certificate MUST have an alias associated with it for the store.
-- **Use PowerShell** – Unchecked
+- **Requires Store Password** - Checked
+- **Supports Entry Password** - Unchecked
 - **Store PathType** – Freeform (user will enter the the location of the store)
-- **Private Keys** – Optional (a certificate in a PKCS12 certificate store may or may not contain a private key depending if it is a trust store or not)
+- **Supports Custom Alias** – Required. Each certificate MUST have an alias associated with it for the store.
+- **Private Key Handling** – Optional (Certificates in a PKCS12 store generally contain private keys, but may not in a trust store configuration)
 - **PFX Password Style** – Default
-- **Job Types** – Create, Inventory, Add, and Remove are the 4 job types implemented by this AnyAgent
-- **Management Job Custom Fields** - Keep blank.
+
+No Custom Fields or Entry Parameters should be entered.
 
 **2. Register the PKCS12 AnyAgent with Keyfactor**
 
