@@ -78,7 +78,7 @@ Download the desired [PKCS12 orchestrator extension version](https://github.com/
 
 If you choose to manually create a PKCS12 store In Keyfactor Command rather than running a Discovery job to automatically find the store, you can navigate to Certificate Locations =\> Certificate Stores within Keyfactor Command to add a PKCS12 certificate store. Below are the values that should be entered.
 
-![](Images/Image3.png)
+![](images/image3.png)
 
 - **Category** – Required. The PKCS12 type name must be selected.
 - **Container** – Optional. Select a container if utilized.
