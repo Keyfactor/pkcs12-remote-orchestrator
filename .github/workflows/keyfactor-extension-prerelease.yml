@@ -5,7 +5,7 @@ name: Keyfactor Extension - Release Candidate
 
 env:
   SOLUTION_FOLDER: '.'
-  PROJECT_FOLDER: '.'
+  PROJECT_FOLDER: 'PKCS12'
 
 # Controls when the action will run. 
 on:
