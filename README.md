@@ -1,5 +1,5 @@
 # Remote PKCS12
-## windows-orchestrator
+## orchestrator
 
 The PKCS12 orchestrator extension allows a user to discover, inventory and manage (both add and remove) PKCS12 certificate stores on both Windows and Linux servers.
 
