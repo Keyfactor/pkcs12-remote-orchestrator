@@ -51,7 +51,7 @@ The PKCS12 orchestrator extension has been tested against Keyfactor Universal Or
 
 **1. Create the New Certificate Store Type for the PKCS12 orchestrator extension**
 
-In Keyfactor Command create a new Certificate Store Type similar to the one below:
+In Keyfactor Command create a new Certificate Store Type similar to the one below by clicking Settings (the gear icon in the top right) => Certificate Store Types => Add:
 
 ![](Images/image1.png)
 ![](Images/image2.png)
