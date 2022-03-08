@@ -72,7 +72,7 @@ No Custom Fields or Entry Parameters should be entered.
 
 **2. Create the proper extension folder and move the installation binaries to this location**
 
-Download the desired PKCS12 orchestrator extension version at https://github.com/Keyfactor/pkcs12-remote-orchestrator. Within Windows File Explorer, navigate to the Keyfactor Orchestrator installation folder (usually C:\Program Files\Keyfactor\Keyfactor Orchestrator), find the "extensions" folder, and under that create a new folder named "PKCS12". Under the PKCS12 folder copy all of the files from the downloaded release to this location.
+Download the desired [PKCS12 orchestrator extension version](https://github.com/Keyfactor/pkcs12-remote-orchestrator). Within Windows File Explorer, navigate to the Keyfactor Orchestrator installation folder (usually C:\Program Files\Keyfactor\Keyfactor Orchestrator), find the "extensions" folder, and under that create a new folder named "PKCS12". Under the PKCS12 folder copy all of the files from the downloaded release to this location.
 
 **3a. (Optional) Create a PKCS12 Certificate Store within Keyfactor Command**
 
