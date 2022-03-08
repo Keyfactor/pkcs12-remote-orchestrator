@@ -104,7 +104,7 @@ Rather than manually creating PKCS12 certificate stores, you can schedule a Disc
 
 First, in Keyfactor Command navigate to Certificate Locations => Certificate Stores. Select the Discover tab and then the Schedule button. Complete the dialog and click Done to schedule.
 
-![](Images/Image4.png)
+![](Images/image4.png)
 
 - **Category** – Required. The PKCS12 type name must be selected.
 - **Orchestrator** – Select the orchestrator you wish to use to manage this store
