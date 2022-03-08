@@ -19,7 +19,7 @@ The PKCS12 orchestrator extension supports the following types of certificate st
 2. Stores with one or more aliases (friendly names)
 3. Stores with certificate chains included in the entry
 
-This orchestrator extension supports Java Keystores of type PKCS12 along with any other certificate stores creating using the PKCS#12 standard.  It does NOT at this time support Java Keystores of type JKS or any other types besides PKCS12.  It differs from the Java Keystore orchestrator extension - [https://github.com/Keyfactor/jks-remote-orchestrator] in that it uses the BouncyCastle .Net code library to manage the certificate store rather than remoting keytool commands.  Please go to [https://github.com/keyfactor/jks-remote-orchestrator] for an orchestrator extension that can manage java keystores of type JKS.
+This orchestrator extension supports Java Keystores of type PKCS12 along with any other certificate stores created using the PKCS#12 standard.  It does NOT at this time support Java Keystores of type JKS or any other types besides PKCS12.  It differs from the Java Keystore orchestrator extension - [https://github.com/Keyfactor/jks-remote-orchestrator] in that it uses the BouncyCastle .Net code library to manage the certificate store rather than remoting keytool commands.  Please go to [https://github.com/keyfactor/jks-remote-orchestrator] for an orchestrator extension that can manage java keystores of type JKS.
 
 
 ## Versioning
