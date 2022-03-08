@@ -1,6 +1,6 @@
 {
   "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
-  "integration_type": "windows-orchestrator",
+  "integration_type": "orchestrator",
   "name": "Remote PKCS12",
   "status": "production",
   "link_github": true,
