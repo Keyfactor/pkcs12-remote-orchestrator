@@ -1,0 +1,18 @@
+﻿{
+  "extensions": {
+    "Keyfactor.Orchestrators.Extensions.IOrchestratorJobExtension": {
+      "CertStores.PKCS12.Inventory": {
+        "assemblypath": "PKCS12.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.PKCS12.Inventory"
+      },
+      "CertStores.PKCS12.Management": {
+        "assemblypath": "PKCS12.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.PKCS12.Management"
+      },
+      "CertStores.PKCS12.Discovery": {
+        "assemblypath": "PKCS12.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.PKCS12.Discovery"
+      }
+    }
+  }
+}
