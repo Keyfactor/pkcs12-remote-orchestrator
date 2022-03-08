@@ -38,7 +38,7 @@ The PKCS12 orchestrator extension has been tested against Keyfactor Universal Or
 1. The PKCS12 orchestrator extension makes use of SFTP to upload and download certificate and certificate store files as well as the following common Linux shell commands:
     * find
 2. If the credentials you will be connecting with will need elevated access to run these commands, you must set the id up as a sudoer with no password necessary and set the config.json "UseSudo" value to "Y" (See Section 4 regarding the config.json file).
-3. As mentioned in #1, the PKCS12 orchestrator extension makes use of SFTP to transfer files to and from the orchestrated server.  SFTP will not mske use of sudo, so all folders containing certificate stores will need to allow SFTP file transfer.  If this is not possible, set the values in the config.json apprpriately to use an alternative upload/download folder that does have SFTP file transfer (See Section 4 regarding the config.json file).
+3. As mentioned in #1, the PKCS12 orchestrator extension makes use of SFTP to transfer files to and from the orchestrated server.  SFTP will not mske use of sudo, so all folders containing certificate stores will need to allow SFTP file transfer.  If this is not possible, set the values in the config.json apprpriately to use an alternative upload/download folder that will allow SFTP file transfer (See Section 4 regarding the config.json file).
 
 **For Windows orchestrated servers:**
 1. Make sure that WinRM is set up on the orchestrated server and that the WinRM port is part of the certificate store path when setting up your certificate stores (See Section 3a below). 
