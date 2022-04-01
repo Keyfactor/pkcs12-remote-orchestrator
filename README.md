@@ -1,7 +1,7 @@
 # Remote PKCS12
 ## orchestrator
 
-The PKCS12 orchestrator extension allows a user to discover, inventory and manage (both add and remove) PKCS12 certificate stores on both Windows and Linux servers.
+The PKCS12 orchestrator extension allows a user to discover, inventory and manage (both add and remove) PKCS12 certificate stores on both Windows and Linux servers.  **Currently this extension is only intended for use with the Keyfactor Universal Orchestrator installed on a Windows server**.
 
 <!-- add integration specific information below -->
 
