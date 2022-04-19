@@ -98,8 +98,9 @@ When setting up a Windows server, the format of the machine name must be – htt
   
 - **Store Path** – Required. The FULL PATH and file name of the pkcs12 certificate store being managed. File paths on Linux servers will always begin with a &quot;/&quot;. Windows servers will always begin with the drive letter, colon, and backslash, such as &quot;c:\\&quot;.  Valid characters for Linux store paths include any alphanumeric character, space, forward slash, hyphen, underscore, and period. For Windows servers, the aforementioned characters as well as a colon and backslash.
 - **Orchestrator** – Select the orchestrator you wish to use to manage this store
-- **Store Password** – Set the store password or set no password after clicking the supplied button
+- **Store Password** – Required. Set the store password or set no password after clicking the supplied button
 - **Create Certificate Store** - Check this box IF you wish to schedule a CREATE job that will physically create this store on the destination server.  If the actual physical store already exists, leave this unchecked.
+- **Linux File Permissions on Store Creation** - Optional (Linux only). Set the Linux file permissions you wish to be set when creating a new physical certificate store via checking Create Certificate Store above.  This value must be 3 digits all betwwen 0-7.
 - **Inventory Schedule** – Set a schedule for running Inventory jobs or none, if you choose not to schedule Inventory at this time.
 
 **3b. (Optional) Schedule a PKCS12 Discovery Job
@@ -120,7 +121,7 @@ First, in Keyfactor Command navigate to Certificate Locations => Certificate Sto
 
   - PAM provider information to pass the UserId/Password or UserId/SSH private key credentials
 
-  When setting up a Windows server, the format of the machine name must be – [http://_ServerName_:5985](http://ServerName:5985/), where "5985" is the WinRM port number. 5985 is the standard, but if your organization uses a different, use that.  The credentials used will be the Keyfactor Command service account.  Because of this, for Windows orchestrated servers, setting an additional set of credentials is not necessary.  **However, it is required that the *Change Credentials* link still be clicked on and the resulting dialog closed by clicking OK.**
+  When setting up a Windows server, the format of the machine name must be – http://ServerName:5985, where &quot;5985&quot; is the WinRM port number. 5985 is the standard, but if your organization uses a different, use that.  The credentials used can the credentials entered or the Keyfactor Command service account if you leave the credentials blank.  **However, if you choose to not enter credentials and use the Keyfactor Command service account, it is required that the *Change Credentials* link still be clicked on and the resulting dialog closed by clicking OK.**
 - **When** – Required. The date and time when you would like this to execute.
 - **Directories to search** – Required. A comma delimited list of the FULL PATHs and file names where you would like to recursively search for PKCS12 certificate stores. File paths on Linux servers will always begin with a "/". Windows servers will always begin with the drive letter, colon, and backslash, such as "c:\\".  Entering the string "fullscan" when Discovering against a Windows server will automatically do a recursive search on ALL local drives on the server.
 - **Directories to ignore** – Optional. A comma delimited list of the FULL PATHs that should be recursively ignored when searching for PKCS12 certificate stores. Linux file paths will always begin with a "/". Windows servers will always begin with the drive letter, colon, and backslash, such as "c:\\".
