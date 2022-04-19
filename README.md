@@ -70,7 +70,7 @@ In Keyfactor Command create a new Certificate Store Type similar to the one belo
 - **Private Key Handling** – Optional (Certificates in a PKCS12 store generally contain private keys, but may not in a trust store configuration)
 - **PFX Password Style** – Default
 
-- **linuxFilePermissionsOnStoreCreation** - Optional.  Overrides the optional config.json DefaultLinuxPermissionsOnStoreCreation setting for a specific certificate store.  This value will set the file permissions (Linux only) of a new certificate store created via a Management-Create job.  If this parameter is not added or added but not set, the permissions used will be derived from the DefaultLinuxPermissionsOnStoreCreation setting. 
+- **Linux File Permissions on Store Creation** - Optional.  Overrides the optional config.json DefaultLinuxPermissionsOnStoreCreation setting (see section 4 below) for a specific certificate store.  This value will set the file permissions (Linux only) of a new certificate store created via a Management-Create job.  If this parameter is not added or added but not set, the permissions used will be derived from the DefaultLinuxPermissionsOnStoreCreation setting. 
 
 No Entry Parameters should be entered.
 
