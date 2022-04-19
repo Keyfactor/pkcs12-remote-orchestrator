@@ -68,7 +68,12 @@ In Keyfactor Command create a new Certificate Store Type similar to the one belo
 - **Private Key Handling** – Optional (Certificates in a PKCS12 store generally contain private keys, but may not in a trust store configuration)
 - **PFX Password Style** – Default
 
-No Custom Fields or Entry Parameters should be entered.
+![](Images/image4.png) 
+![](Images/image5.png) 
+
+- **linuxFilePermissionsOnStoreCreation** - Optional.  Overrides the optional config.json DefaultLinuxPermissionsOnStoreCreation setting for a specific certificate store.  This value will set the file permissions (Linux only) of a new certificate store created via a Management-Create job.  If this parameter is not added or added but not set, the permissions used will be derived from the DefaultLinuxPermissionsOnStoreCreation setting. 
+
+No Entry Parameters should be entered.
 
 **2. Create the proper extension folder and move the installation binaries to this location**
 
@@ -144,3 +149,5 @@ Modify the three values as appropriate (all must be present regardless of Linux 
 **UseSeparateUploadFilePath** (Linux only) – When adding a certificate to a PKCS12 certificate store, the orchestrator extension must upload the certificate being deployed to the server where the certificate store resides. Setting this value to &quot;Y&quot; looks to the next setting, SeparateUploadFilePath, to determine where this file should be uploaded. Set this value to &quot;N&quot; to use the same path where the certificate store being managed resides. The certificate file uploaded to either location will be removed at the end of the process.
 
 **SeparateUploadFilePath** (Linux only) – Only used when UseSeparateUploadFilePath is set to &quot;Y&quot;. Set this to the path you wish to use as the location to upload and later remove certificates to be added to the PKCS12 certificate store being maintained.
+
+**DefaultLinuxPermissionsOnStoreCreation** (Linux only) - Optional.  Value must be 3 digits all between 0-7.  The Linux file permissions that will be set on a new certificate store created via a Management Create job.  This value will be overridden by the optional linuxFilePermissionsOnStoreCreation custom parameter setting on a specific certificate store.  If linuxFilePermissionsOnStoreCreation and DefaultLinuxPermissionsOnStoreCreation are not set, a default permission of 600 will be used.
