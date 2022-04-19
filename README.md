@@ -55,8 +55,8 @@ In Keyfactor Command create a new Certificate Store Type similar to the one belo
 
 ![](Images/image1.png)
 ![](Images/image2.png)
-![](Images/image4.png) 
 ![](Images/image5.png) 
+![](Images/image6.png) 
 
 - **Name** – Required. The display name of the new Certificate Store Type
 - **Short Name** – Required. **MUST** be &quot;PKCS12&quot;
