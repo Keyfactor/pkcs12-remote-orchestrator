@@ -15,7 +15,7 @@ using Keyfactor.Orchestrators.Common.Enums;
 
 using Microsoft.Extensions.Logging;
 
-using Org.BouncyCastle.Pkcs;
+using Newtonsoft.Json;
 
 namespace Keyfactor.Extensions.Orchestrator.PKCS12
 {
@@ -28,50 +28,55 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             ILogger logger = LogHandler.GetClassLogger<Inventory>();
             logger.LogDebug($"Begin PKCS12 Management-{Enum.GetName(typeof(CertStoreOperationType), config.OperationType)} job for job id {config.JobId}...");
 
-            PKCS12Store PKCS12Store = new PKCS12Store(config.CertificateStoreDetails.ClientMachine, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, config.CertificateStoreDetails.StorePassword);
+            PKCS12Store pkcs12Store = new PKCS12Store(config.CertificateStoreDetails.ClientMachine, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, config.CertificateStoreDetails.StorePassword);
 
             try
             {
                 ApplicationSettings.Initialize(this.GetType().Assembly.Location);
 
                 bool hasPassword = !string.IsNullOrEmpty(config.JobCertificate.PrivateKeyPassword);
-                PKCS12Store.Initialize();
+                pkcs12Store.Initialize();
 
                 switch (config.OperationType)
                 {
                     case CertStoreOperationType.Add:
                         logger.LogDebug($"Begin Create Operation for {config.CertificateStoreDetails.StorePath} on {config.CertificateStoreDetails.ClientMachine}.");
-                        if (!PKCS12Store.DoesStoreExist())
+                        if (!pkcs12Store.DoesStoreExist())
                         {
-                            throw new PKCS12Exception($"Certificate store {PKCS12Store.StorePath + PKCS12Store.StoreFileName} does not exist on server {PKCS12Store.Server}.");
+                            throw new PKCS12Exception($"Certificate store {pkcs12Store.StorePath + pkcs12Store.StoreFileName} does not exist on server {pkcs12Store.Server}.");
                         }
                         else
                         {
-                            PKCS12Store.AddCertificate(config.JobCertificate.Alias, config.JobCertificate.Contents, config.Overwrite, config.JobCertificate.PrivateKeyPassword);
+                            pkcs12Store.AddCertificate(config.JobCertificate.Alias, config.JobCertificate.Contents, config.Overwrite, config.JobCertificate.PrivateKeyPassword);
                         }
                         break;
 
                     case CertStoreOperationType.Remove:
                         logger.LogDebug($"Begin Delete Operation for {config.CertificateStoreDetails.StorePath} on {config.CertificateStoreDetails.ClientMachine}.");
-                        if (!PKCS12Store.DoesStoreExist())
+                        if (!pkcs12Store.DoesStoreExist())
                         {
-                            throw new PKCS12Exception($"Certificate store {PKCS12Store.StorePath + PKCS12Store.StoreFileName} does not exist on server {PKCS12Store.Server}.");
+                            throw new PKCS12Exception($"Certificate store {pkcs12Store.StorePath + pkcs12Store.StoreFileName} does not exist on server {pkcs12Store.Server}.");
                         }
                         else
                         {
-                            PKCS12Store.DeleteCertificateByAlias(config.JobCertificate.Alias);
+                            pkcs12Store.DeleteCertificateByAlias(config.JobCertificate.Alias);
                         }
                         break;
 
                     case CertStoreOperationType.Create:
                         logger.LogDebug($"Begin Create Operation for {config.CertificateStoreDetails.StorePath} on {config.CertificateStoreDetails.ClientMachine}.");
-                        if (PKCS12Store.DoesStoreExist())
+                        if (pkcs12Store.DoesStoreExist())
                         {
-                            throw new PKCS12Exception($"Certificate store {PKCS12Store.StorePath + PKCS12Store.StoreFileName} already exists.");
+                            throw new PKCS12Exception($"Certificate store {pkcs12Store.StorePath + pkcs12Store.StoreFileName} already exists.");
                         }
                         else
                         {
-                            PKCS12Store.CreateCertificateStore(config.CertificateStoreDetails.StorePath, config.CertificateStoreDetails.StorePassword);
+                            dynamic properties = JsonConvert.DeserializeObject(config.CertificateStoreDetails.Properties.ToString());
+                            string linuxFilePermissions = properties.linuxFilePermissionsOnStoreCreation == null || string.IsNullOrEmpty(properties.linuxFilePermissionsOnStoreCreation.Value) ? 
+                                ApplicationSettings.DefaultLinuxPermissionsOnStoreCreation :
+                                properties.linuxFilePermissionsOnStoreCreation.Value;
+
+                            pkcs12Store.CreateCertificateStore(config.CertificateStoreDetails.StorePath, linuxFilePermissions);
                         }
                         break;
 
@@ -85,7 +90,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             }
             finally
             {
-                PKCS12Store.Terminate();
+                pkcs12Store.Terminate();
             }
 
             return new JobResult() { Result = OrchestratorJobStatusJobResult.Success, JobHistoryId = config.JobHistoryId };
