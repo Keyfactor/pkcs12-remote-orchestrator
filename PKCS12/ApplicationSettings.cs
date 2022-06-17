@@ -22,7 +22,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             if (!File.Exists($@"{currDir}{Path.DirectorySeparatorChar}config.json"))
                 throw new PKCS12Exception($"config.json file does not exist in {currDir}");
 
-            using (StreamReader sr = new StreamReader($@"{currDir}\config.json"))
+            using (StreamReader sr = new StreamReader($@"{currDir}{Path.DirectorySeparatorChar}config.json"))
             {
                 configContents = sr.ReadToEnd();
             }
