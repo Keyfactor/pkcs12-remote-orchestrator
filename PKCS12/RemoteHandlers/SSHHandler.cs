@@ -171,6 +171,8 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
             {
                 SplitStorePathFile(path, out altPathOnly, out altFileNameOnly);
                 downloadPath = ApplicationSettings.SeparateUploadFilePath + altFileNameOnly;
+                RunCommand($"cp {path} {downloadPath}", null, ApplicationSettings.UseSudo, null);
+                RunCommand($"sudo chown {Connection.Username} {path}", null, ApplicationSettings.UseSudo, null);
             }
 
             if (ApplicationSettings.UseSCP)
