@@ -10,6 +10,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
         public static bool UseSeparateUploadFilePath { get; set; }
         public static string SeparateUploadFilePath { get; set; }
         public static string DefaultLinuxPermissionsOnStoreCreation { get; set; }
+        public static bool UseSCP { get; set; }
 
         private const string DEFAULT_LINUX_PERMISSION_SETTING = "600";
 
@@ -18,10 +19,10 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             string configContents = string.Empty;
             string currDir = Path.GetDirectoryName(currLocation);
 
-            if (!File.Exists($@"{currDir}\config.json"))
+            if (!File.Exists($@"{currDir}{Path.DirectorySeparatorChar}config.json"))
                 throw new PKCS12Exception($"config.json file does not exist in {currDir}");
 
-            using (StreamReader sr = new StreamReader($@"{currDir}\config.json"))
+            using (StreamReader sr = new StreamReader($@"{currDir}{Path.DirectorySeparatorChar}config.json"))
             {
                 configContents = sr.ReadToEnd();
             }
@@ -35,6 +36,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
             UseSudo = jsonContents.UseSudo.Value.Equals("Y", System.StringComparison.OrdinalIgnoreCase);
             UseSeparateUploadFilePath = jsonContents.UseSeparateUploadFilePath.Value.Equals("Y", System.StringComparison.OrdinalIgnoreCase);
             SeparateUploadFilePath = AddTrailingSlash(jsonContents.SeparateUploadFilePath.Value);
+            UseSCP = jsonContents.UseSCP == null || !jsonContents.UseSCP.Value.Equals("Y", System.StringComparison.OrdinalIgnoreCase) ? false : true;
         }
 
         private static string AddTrailingSlash(string path)

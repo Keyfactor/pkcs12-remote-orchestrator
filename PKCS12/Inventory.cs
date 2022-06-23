@@ -47,18 +47,19 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
                     if (collection.Count == 0)
                         continue;
 
-                    X509Certificate2 issuedCertificate = collection[0];
+                    X509Certificate2Ext issuedCertificate = (X509Certificate2Ext)collection[0];
 
                     List<string> certChain = new List<string>();
                     foreach (X509Certificate2 certificate in collection)
                     {
                         certChain.Add(Convert.ToBase64String(certificate.Export(X509ContentType.Cert)));
+                        logger.LogDebug(Convert.ToBase64String(certificate.Export(X509ContentType.Cert)));
                     }
 
                     inventoryItems.Add(new CurrentInventoryItem()
                     {
                         ItemStatus = OrchestratorInventoryItemStatus.Unknown,
-                        Alias = string.IsNullOrEmpty(issuedCertificate.FriendlyName) ? issuedCertificate.Thumbprint : issuedCertificate.FriendlyName,
+                        Alias = string.IsNullOrEmpty(issuedCertificate.FriendlyNameExt) ? issuedCertificate.Thumbprint : issuedCertificate.FriendlyNameExt,
                         PrivateKeyEntry = issuedCertificate.HasPrivateKey,
                         UseChainLevel = collection.Count > 1,
                         Certificates = certChain.ToArray()

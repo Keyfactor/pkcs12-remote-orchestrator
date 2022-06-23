@@ -132,8 +132,8 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12
 
                 foreach(X509CertificateEntry entry in entries)
                 {
-                    X509Certificate2 cert = new X509Certificate2(entry.Certificate.GetEncoded());
-                    cert.FriendlyName = alias;
+                    X509Certificate2Ext cert = new X509Certificate2Ext(entry.Certificate.GetEncoded());
+                    cert.FriendlyNameExt = alias;
                     chain.Add(cert);
                 }
 
