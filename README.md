@@ -15,6 +15,11 @@ The Universal Orchestrator is the successor to the Windows Orchestrator. This Ca
 ---
 
 
+
+
+---
+
+
 ## Use Cases
 
 The PKCS12 orchestrator extension implements the following capabilities:
@@ -161,4 +166,7 @@ Modify the three values as appropriate (all must be present regardless of Linux 
 **SeparateUploadFilePath** (Linux only) – Only used when UseSeparateUploadFilePath is set to &quot;Y&quot;. Set this to the path you wish to use as the location to upload and later remove certificates to be added to the PKCS12 certificate store being maintained.
 
 **DefaultLinuxPermissionsOnStoreCreation** (Linux only) - Optional.  Value must be 3 digits all between 0-7.  The Linux file permissions that will be set on a new certificate store created via a Management Create job.  This value will be used for all certificate stores managed by this orchestrator instance unless overridden by the optional "Linux File Permissions on Store Creation" custom parameter setting on a specific certificate store.  If "Linux File Permissions on Store Creation" and DefaultLinuxPermissionsOnStoreCreation are not set, a default permission of 600 will be used.
+
+### License
+[Apache](https://apache.org/licenses/LICENSE-2.0)
 

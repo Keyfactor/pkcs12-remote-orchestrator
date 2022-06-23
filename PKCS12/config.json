@@ -2,5 +2,6 @@
   "UseSudo": "N",
   "UseSeparateUploadFilePath": "N",
   "SeparateUploadFilePath": "/path/to/upload/folder/",
-  "DefaultLinuxPermissionsOnStoreCreation":  "600"
+  "DefaultLinuxPermissionsOnStoreCreation": "600",
+  "UseSCP": "N"
 }
