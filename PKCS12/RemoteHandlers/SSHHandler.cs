@@ -92,7 +92,7 @@ namespace Keyfactor.Extensions.Orchestrator.PKCS12.RemoteHandlers
         public override void UploadCertificateFile(string path, string fileName, byte[] certBytes)
         {
             _logger.LogDebug($"UploadCertificateFile: {path}{fileName}");
-            string uploadPath = path;
+            string uploadPath = path+fileName;
 
             if (ApplicationSettings.UseSeparateUploadFilePath)
             {
