@@ -105,7 +105,11 @@ If you choose to manually create a PKCS12 store In Keyfactor Command rather than
   
   - UserId/Password
   
-  - UserId/SSH private key (entered in the password field)
+  - UserId/SSH private key.  If using a SSH private key, the following formats are supported:
+    - RSA in OpenSSL PEM and ssh.com format
+    - DSA in OpenSSL PEM and ssh.com format
+    - ECDSA 256/384/521 in OpenSSL PEM format
+    - ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format
   
   - PAM provider information to pass the UserId/Password or UserId/SSH private key credentials
   
@@ -132,7 +136,11 @@ First, in Keyfactor Command navigate to Certificate Locations => Certificate Sto
 
   - UserId/Password
 
-  - UserId/SSH private key (entered in the password field)
+  - UserId/SSH private key.  If using a SSH private key, the following formats are supported:
+    - RSA in OpenSSL PEM and ssh.com format
+    - DSA in OpenSSL PEM and ssh.com format
+    - ECDSA 256/384/521 in OpenSSL PEM format
+    - ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format
 
   - PAM provider information to pass the UserId/Password or UserId/SSH private key credentials
 
