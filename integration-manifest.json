@@ -3,6 +3,8 @@
   "integration_type": "orchestrator",
   "name": "Remote PKCS12",
   "status": "production",
+  "update_catalog": true,
   "link_github": true,
+  "support_level": "kf-supported",
   "description": "The PKCS12 orchestrator extension allows a user to discover, inventory and manage (both add and remove) PKCS12 certificate stores on both Windows and Linux servers."
 }
